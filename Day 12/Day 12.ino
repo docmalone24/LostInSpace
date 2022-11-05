@@ -49,7 +49,9 @@ char GetKey(){
   result = myAwesomePad.getKey();
  
   if (result){                    // if a button is pressed
-    Serial.println(result);
+    Serial.print("Key: ");
+    Serial.print(result);
+    Serial.print("  ");
   }
     
   return result;
@@ -133,21 +135,27 @@ void BadPass(){ //when a key is presed as not part of the password, the red LED 
 }
  
 void GoodPass(){ //when the password has been entered correctly, the green LED will blink 3 times
+  Serial.println("You fuckin did it!");
   digitalWrite(greenLED, HIGH);
+  tone(buzzer, 147, 200);
   delay(100);
   digitalWrite(greenLED, LOW);
   delay(100);
   digitalWrite(greenLED, HIGH);
+  tone(buzzer, 247, 200);
   delay(100);
   digitalWrite(greenLED, LOW);
   delay(100);
   digitalWrite(greenLED, HIGH);
+  tone(buzzer, 370, 200);
   delay(100);
   digitalWrite(greenLED, LOW);
   delay(100);
   digitalWrite(greenLED, HIGH);
+  tone(buzzer, 587, 200);
   delay(1000);
   digitalWrite(greenLED, LOW);
+  noTone(buzzer);
   //delay(100);
 }
 
@@ -162,6 +170,8 @@ void MakeTone (char button){
     }  // end i loop
   }  // end j loop
 
+  Serial.print("Tone: ");
+  Serial.println(toneFreq);
   tone(buzzer, toneFreq, 200);  // ... and play the tone for a half second
   delay(200);
   noTone(buzzer);
