@@ -26,7 +26,7 @@ void loop() {
   //this is a simulation of a traffic light, currently green, and a push button requesting safe crossing
 
   while (digitalRead(PB) == LOW);  {
-    
+    if (digitalRead(PB) == HIGH); {
     digitalWrite(Go, LOW);
     digitalWrite(Caut, HIGH);
     delay(3000);
@@ -35,7 +35,7 @@ void loop() {
     delay(1000);
     digitalWrite(Stay, LOW);
     digitalWrite(Walk, HIGH);
-    delay(10000);
+    delay(5000);
     digitalWrite(Walk, LOW);
     digitalWrite(Stay, HIGH);
     delay(1000);
@@ -44,3 +44,4 @@ void loop() {
   
   }
   }
+}
