@@ -32,7 +32,7 @@ int unlockMode(){
     bool correctPass = true;
  
     RGB_color(0, 0, 0); // turn LED OFF
-    Serial.println("Unlock Mode: Type Password to continue");
+    //Serial.println("Unlock Mode: Type Password to continue");
     delay(500);
    
     for(int i = 0; i < PassLength; i++) {
@@ -120,6 +120,13 @@ void setup() {
   // Serial.println("Press # to access the system with the existing one.");
 }
 
+void showMenu(){
+  Serial.println("Enter an option:");
+  Serial.println("A: Something");
+  Serial.println("B: Something Else");
+  Serial.println("C: Change Password");
+  Serial.println("9: Exit");
+}
 void passwordChange() {
     for(int i = 0; i < PassLength; i++) {
     while(!(result = securityPad.getKey())) {
@@ -137,6 +144,9 @@ void passwordChange() {
   Serial.println("");
   Serial.println("Password Successfully Changed!");
   RGB_color(0, 125, 0); // LED to GREEN
+  delay(2000);
+  RGB_color(0, 0, 0);
+
 }
 
 void loop() {
@@ -144,18 +154,33 @@ void loop() {
   int access = unlockMode();
  
   if (access >= 0){
-    Serial.println("You have entered the menu");
+    //Serial.println("You have entered the menu");
+    showMenu();
   }
 
   while (access >= 0) {           // enter menu mode
-    
-    result = securityPad.getKey();
-
+    //result = securityPad.getKey();
+    //Serial.println("In the menu loop");
     while(!(result = securityPad.getKey())) {
          // wait indefinitely for keypad input of any kind
        }
-    if (result){
+    //Serial.println(result);
+    if (result == 'A'){
+      Serial.println("This is option A.");
+      showMenu();
+    }
+    if (result == 'B'){
+      Serial.println("This is option B");
+      showMenu();
+    }
+    if (result == 'C'){
+      Serial.println("Enter the new password:");
+      passwordChange();
+      showMenu();
+    }
+    if (result == '9'){
       access = -1;
+      Serial.println("Exiting the system");
     }
   }
 }
