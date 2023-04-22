@@ -125,8 +125,8 @@ void setup() {
 
 void showMenu(){
   Serial.println("Enter an option:");
-  Serial.println("A: Light Controls Sound");
-  Serial.println("B: Something Else");
+  Serial.println("A: Light In Controls Sound Pitch");
+  Serial.println("B: Light In Controls Light Out");
   Serial.println("C: Change Password");
   Serial.println("9: Exit");
 }
@@ -162,17 +162,61 @@ void menuOptA(){
     sensorValue = analogRead(sensorPin);
     senPercent = (float)sensorValue / (float)senMax;
     buzzTone = int(senPercent * 4000);
-    Serial.print("Sensor: ");
-    Serial.print(sensorValue);
-    Serial.print("  Tone: ");
-    Serial.print(buzzTone);
-    Serial.print("  Should be: ");
-    Serial.println(senPercent);
+    // Serial.print("Sensor: ");
+    // Serial.print(sensorValue);
+    // Serial.print("  Tone: ");
+    // Serial.print(buzzTone);
+    // Serial.print("  Should be: ");
+    // Serial.println(senPercent);
     tone(buzzer, buzzTone, 100);
     delay(10);
     noTone(buzzer);
     delay(10);
   }
+  return;
+}
+
+void menuOptB(){
+  int sensorValue = 0;
+  int lightLevel = 0;
+  float senPercent = 0.0;
+  int redLevel;
+  int greenLevel;
+  int blueLevel;
+  Serial.println("Press any key to return to menu.");
+  while(!(result = securityPad.getKey())) {
+    // run photo sound operation until a key is pressed
+    sensorValue = analogRead(sensorPin);
+    senPercent = (float)sensorValue / (float)senMax;
+    lightLevel = int(senPercent * 255);
+
+    //Test variables
+    // Serial.print("Sensor: ");
+    // Serial.print(sensorValue);
+    // Serial.print("  Tone: ");
+    // Serial.print(lightLevel);
+    // Serial.print("  Should be: ");
+    // Serial.println(senPercent);
+
+    //Option 1: increasing red for the first third, green for the middle, blue for the last 
+    // if(lightLevel < 33){
+    //   redLevel = ((float)lightLevel / 32.0) * 100;
+    //   RGB_color(redLevel, 0, 0);
+    // }
+    // if(lightLevel >= 33 && lightLevel < 66){
+    //   greenLevel = (((float)lightLevel - 32.0) / 33.0) * 100;
+    //   RGB_color(0, greenLevel, 0);
+    // }
+    // if(lightLevel >= 66){
+    //   blueLevel = (((float)lightLevel - 65.0) / 35.0) * 100;
+    //   RGB_color(0, 0, blueLevel);
+    // }
+    
+    //Option 2: all white light
+    RGB_color(lightLevel, lightLevel, lightLevel);
+
+  }
+  RGB_color(0,0,0);
   return;
 }
 
@@ -198,7 +242,8 @@ void loop() {
       showMenu();
     }
     if (result == 'B'){
-      Serial.println("This is option B");
+      //Serial.println("This is option B");
+      menuOptB();
       showMenu();
     }
     if (result == 'C'){
