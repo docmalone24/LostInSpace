@@ -1,6 +1,7 @@
 #include <Key.h>
 #include <Keypad.h>
- 
+
+//light sensor range is 0 - 671 
 int buzzer = 8;  //sound output pin
 int redPin = 11;   //  PWM color output pins
 int greenPin = 10;
