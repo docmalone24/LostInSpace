@@ -1,7 +1,9 @@
 #include <Key.h>
 #include <Keypad.h>
 
-//light sensor range is 0 - 671 
+//light sensor range is 0 - 671
+int sensorPin = A0; //select the *analog zero* input pin for probing the photoresistor 
+int senMax = 680; //maximum light value received by the sensor
 int buzzer = 8;  //sound output pin
 int redPin = 11;   //  PWM color output pins
 int greenPin = 10;
@@ -123,7 +125,7 @@ void setup() {
 
 void showMenu(){
   Serial.println("Enter an option:");
-  Serial.println("A: Something");
+  Serial.println("A: Light Controls Sound");
   Serial.println("B: Something Else");
   Serial.println("C: Change Password");
   Serial.println("9: Exit");
@@ -150,6 +152,30 @@ void passwordChange() {
 
 }
 
+void menuOptA(){
+  int sensorValue = 0;
+  int buzzTone = 100;
+  float senPercent = 0.0;
+  Serial.println("Press any key to return to menu.");
+  while(!(result = securityPad.getKey())) {
+    // run photo sound operation until a key is pressed
+    sensorValue = analogRead(sensorPin);
+    senPercent = (float)sensorValue / (float)senMax;
+    buzzTone = int(senPercent * 4000);
+    Serial.print("Sensor: ");
+    Serial.print(sensorValue);
+    Serial.print("  Tone: ");
+    Serial.print(buzzTone);
+    Serial.print("  Should be: ");
+    Serial.println(senPercent);
+    tone(buzzer, buzzTone, 100);
+    delay(10);
+    noTone(buzzer);
+    delay(10);
+  }
+  return;
+}
+
 void loop() {
   Serial.println("Enter password to access the system:");
   int access = unlockMode();
@@ -167,7 +193,8 @@ void loop() {
        }
     //Serial.println(result);
     if (result == 'A'){
-      Serial.println("This is option A.");
+      //Serial.println("This is option A.");
+      menuOptA();
       showMenu();
     }
     if (result == 'B'){
