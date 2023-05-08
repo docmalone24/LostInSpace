@@ -1,4 +1,4 @@
-//use rotary encoder to cycle 0-9 and wrap
+//use rotary encoder to build four digit number
 #include <TM1637Display.h>
 
 // Define the display connection pins:
@@ -26,7 +26,7 @@ int pw1 = 0;
 // int pw4 = 4;  
 int length = 1;
 int password = 1111;
-int multiplier = 1;
+int multiplier = 10;
 
 int currentStateCLK;
 int lastStateCLK;
@@ -55,6 +55,17 @@ void setup() {
   //hardware interrupts are only available on pins 2 and 3
   attachInterrupt(digitalPinToInterrupt(CLK2), updateEncoder, CHANGE);
   attachInterrupt(digitalPinToInterrupt(SW2), record, CHANGE);
+
+  //debuging readout 
+  Serial.print("pw1: ");
+  Serial.print(pw1);
+  Serial.print("  length: ");
+  Serial.print(length);
+  Serial.print("  password: ");
+  Serial.print(password);
+  Serial.print("  multiplier: ");
+  Serial.println(multiplier);
+
 }
 
 void loop() {
@@ -76,8 +87,8 @@ void updateEncoder(){
     // If the DT state is different than the CLK state then
     // the encoder is rotating CW so INCREASE counter by 1
     if (digitalRead(DT2) == currentStateCLK) {
-      if(pw1 == 9){
-        pw1 = 0;
+      if((pw1 - (password * multiplier)) == 9){
+        pw1 = password * multiplier;
       }
       else {
         pw1 ++;
@@ -85,8 +96,8 @@ void updateEncoder(){
      
     } else {
       // Encoder is rotating CCW so DECREASE counter by 1
-      if(pw1 == 0){
-        pw1 = 9;
+      if(pw1 == (password * multiplier)){
+        pw1 = pw1 + 9;
       }
       else {
         pw1 --;
@@ -105,11 +116,27 @@ void updateEncoder(){
 
 //function makes onboard LED flash when button is pushed
 void record(){
-  if (SW2 == HIGH){
-    password = pw1 * multiplier;
-    Serial.println(password);
-    multiplier = multiplier * 10;
+    Serial.println(digitalRead(SW2));
+  if (digitalRead(SW2) == LOW){
+    Serial.println("in loop");
+    password = pw1;
+    //multiplier = multiplier * 10;
+    if (length < 4) {
     length ++;
     pw1 = pw1 * multiplier;
+    }
+  //debuging readout 
+    Serial.print("pw1: ");
+    Serial.print(pw1);
+    Serial.print("  length: ");
+    Serial.print(length);
+    Serial.print("  password: ");
+    Serial.print(password);
+    Serial.print("  multiplier: ");
+    Serial.println(multiplier);
+  }
+  if (length == 5){
+    pw1 = password;
+    length == 4;
   }
 }
