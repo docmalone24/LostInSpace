@@ -348,7 +348,7 @@ void updateEncoder(){
 //function makes onboard LED flash when button is pushed
 void record(){
     Serial.println(digitalRead(SW2));
-  if (digitalRead(SW2) == LOW){
+  if (digitalRead(SW2) == HIGH){
     Serial.println("in loop");
     pw2 = pw1;
     //multiplier = multiplier * 10;
@@ -357,7 +357,7 @@ void record(){
       //pw1 = pw2;
       //length = 4;
       if (pw1 == password){
-        Serial.println("Look Good");
+        Serial.println("Looks Good");
         access = 1;
         OurDisplay.clear();
       }
