@@ -26,10 +26,17 @@ TM1637Display OurDisplay = TM1637Display(CLK, DIO);
  
 // Create array that turns all segments on:
 const uint8_t data[] = {0xff, 0xff, 0xff, 0xff};
- 
 // Create array that turns all segments off:
 const uint8_t blank[] = {0x00, 0x00, 0x00, 0x00};
- 
+// Characters to display while in the menu
+const uint8_t aChar[] = {SEG_A | SEG_B | SEG_C | SEG_E | SEG_F | SEG_G};
+const uint8_t bChar[] = {SEG_A | SEG_B | SEG_C | SEG_D | SEG_E | SEG_F | SEG_G};
+const uint8_t cChar[] = {SEG_A | SEG_D | SEG_E | SEG_F};
+const uint8_t eChar[] = {SEG_A | SEG_D | SEG_E | SEG_F | SEG_G};
+
+//  menu option currently being displayed
+char menuOption = 'X';
+
 int pw1 = 0;
 int pw2 = 0;
 int length = 1;
@@ -159,10 +166,10 @@ void setup() {
 
 void showMenu(){
   Serial.println("Enter an option:");
-  Serial.println("1: Light In Controls Sound Pitch");
-  Serial.println("2: Light In Controls Light Out");
-  Serial.println("3: Change Password");
-  Serial.println("9: Exit");
+  Serial.println("A: Light In Controls Sound Pitch");
+  Serial.println("B: Light In Controls Light Out");
+  Serial.println("C: Change Password");
+  Serial.println("E: Exit");
 }
 /*
 void passwordChange() {
@@ -257,8 +264,10 @@ void menuOptB(){
 
 void loop() {
  
-OurDisplay.showNumberDec(pw1,true,length,0);
-delay(10);
+ if (access <= 0){
+  OurDisplay.showNumberDec(pw1,true,length,0);
+  delay(10);
+ }
   //debuging readout 
     // Serial.print("pw1: ");
     // Serial.print(pw1);
@@ -278,8 +287,9 @@ delay(10);
 
   while (access > 0) {           // enter menu mode
     //result = securityPad.getKey(); 
-    /*
     Serial.println("In the menu loop"); 
+    delay(2000);
+    /*
     while(!(result = securityPad.getKey())) {
          // wait indefinitely for keypad input of any kind
        }
@@ -310,82 +320,134 @@ delay(10);
 void updateEncoder(){
   // Read the current state of CLK
   currentStateCLK = digitalRead(CLK2);
- 
-  // If last and current state of CLK are different, then a pulse occurred;
-  // React to only 0->1 state change to avoid double counting
-  if (currentStateCLK != lastStateCLK  && currentStateCLK == 1){
- 
-    // If the DT state is different than the CLK state then
-    // the encoder is rotating CW so INCREASE counter by 1
-    if (digitalRead(DT2) == currentStateCLK) {
-      if((pw1 - (pw2 * multiplier)) == 9){
-        pw1 = pw2 * multiplier;
-      }
-      else {
-        pw1 ++;
-      }
-     
-    } else {
-      // Encoder is rotating CCW so DECREASE counter by 1
-      if(pw1 == (pw2 * multiplier)){
-        pw1 = pw1 + 9;
-      }
-      else {
-        pw1 --;
+
+  if (access <= 0) {  //actions while validating password
+    // If last and current state of CLK are different, then a pulse occurred;
+    // React to only 0->1 state change to avoid double counting
+    if (currentStateCLK != lastStateCLK  && currentStateCLK == 1){
+      // If the DT state is different than the CLK state then
+      // the encoder is rotating CW so INCREASE counter by 1
+      if (digitalRead(DT2) == currentStateCLK) {
+        if((pw1 - (pw2 * multiplier)) == 9){
+          pw1 = pw2 * multiplier;
+        }
+        else {
+          pw1 ++;
+        }
+      } else {
+        // Encoder is rotating CCW so DECREASE counter by 1
+        if(pw1 == (pw2 * multiplier)){
+          pw1 = pw1 + 9;
+        }
+        else {
+          pw1 --;
+        }
       }
     }
- 
+    // Remember last CLK state to use on next interrupt...
+    lastStateCLK = currentStateCLK;
+  }
+  if (access > 0) {   //actions after password has been validated and system access has been granted
+    Serial.println("Here you need to code to scroll through the menu options");
+    if (currentStateCLK != lastStateCLK  && currentStateCLK == 1){
+      if (digitalRead(DT2) == currentStateCLK) {
+        switch (menuOption) {
+          case 'A':
+            menuOption = 'B';
+            OurDisplay.setSegments(bChar,1,3);
+            break;
+          case 'B':
+            menuOption = 'C';
+            OurDisplay.setSegments(cChar,1,3);
+            break;
+          case 'C':
+            menuOption = 'E';
+            OurDisplay.setSegments(eChar,1,3);
+            break;
+          default:
+            menuOption = 'A';
+            OurDisplay.setSegments(aChar,1,3);
+            break;
+        }
+      } 
+      else {
+        switch (menuOption) {
+          case 'B':
+            menuOption = 'A';
+            OurDisplay.setSegments(aChar,1,3);
+            break;
+          case 'C':
+            menuOption = 'B';
+            OurDisplay.setSegments(bChar,1,3);
+            break;
+          case 'E':
+            menuOption = 'C';
+            OurDisplay.setSegments(cChar,1,3);
+            break;
+          default:
+            menuOption = 'E';
+            OurDisplay.setSegments(eChar,1,3);
+            break;
+        }
+      }
+    }
     // Serial.print("Direction: ");
     // Serial.print(currentDir);
     // Serial.print(" | Counter= ");
     // Serial.println(counter);
+    // Remember last CLK state to use on next interrupt...
+    lastStateCLK = currentStateCLK;
   }
- 
-  // Remember last CLK state to use on next interrupt...
-  lastStateCLK = currentStateCLK;
 }
 
 //function makes onboard LED flash when button is pushed
 void record(){
-    Serial.println(digitalRead(SW2));
-  if (digitalRead(SW2) == HIGH){
-    Serial.println("in loop");
-    pw2 = pw1;
-    //multiplier = multiplier * 10;
+  Serial.println(digitalRead(SW2));
 
-    if (length == 4){ //entering of password complete, validate if correct
-      //pw1 = pw2;
-      //length = 4;
-      if (pw1 == password){
-        Serial.println("Looks Good");
-        access = 1;
-        OurDisplay.clear();
+  if (access <= 0)  {   //actions while validating password
+    if (digitalRead(SW2) == HIGH){
+      Serial.println("in loop");
+      pw2 = pw1;
+      //multiplier = multiplier * 10;
+      if (length == 4){ //entering of password complete, validate if correct
+        //pw1 = pw2;
+        //length = 4;
+        if (pw1 == password){
+          Serial.println("Looks Good");
+          access = 1;
+          OurDisplay.clear();
+        }
+        else {
+          Serial.println("Fuck off imposter!");
+          Serial.println("Enter the correct password to access the system:");
+          pw1 = 0;
+          pw2 = 0;
+          length = 1;
+          OurDisplay.clear();
+          return;
+        }
       }
-      else {
-        Serial.println("Fuck off imposter!");
-        Serial.println("Enter the correct password to access the system:");
-        pw1 = 0;
-        pw2 = 0;
-        length = 1;
-        OurDisplay.clear();
-        return;
+      if (length < 4) { //while validating password
+      length ++;
+      pw1 = pw1 * multiplier;
       }
+    //debuging readout 
+      Serial.print("pw1: ");
+      Serial.print(pw1);
+      Serial.print("  pw2: ");
+      Serial.print(pw2);
+      Serial.print("  length: ");
+      Serial.print(length);
+      Serial.print("  password: ");
+      Serial.print(password);
+      Serial.print("  multiplier: ");
+      Serial.println(multiplier);
     }
-
-    if (length < 4) {
-    length ++;
-    pw1 = pw1 * multiplier;
-    }
-  //debuging readout 
-    Serial.print("pw1: ");
-    Serial.print(pw1);
-    Serial.print("  pw2: ");
-    Serial.print(pw2);
-    Serial.print("  length: ");
-    Serial.print(length);
-    Serial.print("  password: ");
-    Serial.print(password);
-    Serial.print("  multiplier: ");
-    Serial.println(multiplier);
+  }
+  if (access == 1 && digitalRead(SW2) == HIGH){  //while in the main menu
+    Serial.println("Add select a menu option");
+  }
+  if (access == 2 && digitalRead(SW2) == HIGH){  //while you are inside of a menu option
+    Serial.println("Add return to the menu state");
   }
 }

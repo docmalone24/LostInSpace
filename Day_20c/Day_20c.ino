@@ -2,8 +2,10 @@
 #include <TM1637Display.h>
 
 // Define the display connection pins:
-#define CLK 11
-#define DIO 10
+//#define CLK 11
+//#define DIO 10
+#define CLK 7
+#define DIO 6
 
 // Rotary Encoder Inputs
 #define CLK2 3
