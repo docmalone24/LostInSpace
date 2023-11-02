@@ -36,6 +36,7 @@ const uint8_t eChar[] = {SEG_A | SEG_D | SEG_E | SEG_F | SEG_G};
 
 //  menu option currently being displayed
 char menuOption = 'X';
+char result = 'X';
 
 int pw1 = 0;
 int pw2 = 0;
@@ -191,7 +192,7 @@ void passwordChange() {
   RGB_color(0, 0, 0);
 }
 */
-/*
+
 void menuOptA(){
   int sensorValue = 0;
   int buzzTone = 100;
@@ -213,7 +214,7 @@ void menuOptA(){
     noTone(buzzer);
     delay(10);
   }
-  return;
+  return(0);
 }
 
 void menuOptB(){
@@ -257,9 +258,9 @@ void menuOptB(){
 
   }
   RGB_color(0,0,0);
-  return;
+  return(0);
 } 
-*/
+
 void loop() {
  
  if (access <= 0){
@@ -285,32 +286,32 @@ void loop() {
 
   while (access > 0) {           // enter menu mode
     //result = securityPad.getKey(); 
-    Serial.println("In the menu loop"); 
-    delay(2000);
-    /*
-    while(!(result = securityPad.getKey())) {
+    //Serial.println("In the menu loop"); 
+    delay(1);
+    
+    //while(!(result = securityPad.getKey())) {
          // wait indefinitely for keypad input of any kind
-       }
+       //}
     //Serial.println(result);
     if (result == 'A'){
       //Serial.println("This is option A.");
       menuOptA();
-      showMenu();
+      //showMenu();
     }
     if (result == 'B'){
       //Serial.println("This is option B");
       menuOptB();
-      showMenu();
+      //showMenu();
     }
     if (result == 'C'){
       Serial.println("Enter the new password:");
-      passwordChange();
-      showMenu();
+      //passwordChange();
+      //showMenu();
     }
-    if (result == '9'){
-      access = -1;
-      Serial.println("Exiting the system");
-    } */
+    // if (result == 'E'){
+    //   access = -1;
+    //   Serial.println("Exiting the system");
+    // } 
   }
 }
  
@@ -346,7 +347,7 @@ void updateEncoder(){
     lastStateCLK = currentStateCLK;
   }
   if (access > 0) {   //actions after password has been validated and system access has been granted
-    Serial.println("Here you need to code to scroll through the menu options");
+    //Serial.println("Here you need to code to scroll through the menu options");
     if (currentStateCLK != lastStateCLK  && currentStateCLK == 1){
       if (digitalRead(DT2) == currentStateCLK) {
         switch (menuOption) {
@@ -402,6 +403,10 @@ void updateEncoder(){
 void record(){
   Serial.print("Access: ");
   Serial.println(access);
+  if (access > 0){
+  Serial.print("MenuOption: ");
+  Serial.println(menuOption);
+  }
   Serial.println(digitalRead(SW2));
 
   if (access <= 0)  {   //actions while validating password
@@ -416,7 +421,7 @@ void record(){
           Serial.println("Looks Good");
           access = 1;
           OurDisplay.clear();
-          exit(0);
+          return(0);
         }
         else {
           Serial.println("Fuck off imposter!");
@@ -445,31 +450,40 @@ void record(){
       Serial.println(multiplier);
     }
   }
-  /*
+  
   if (access == 1 && digitalRead(SW2) == HIGH){  //while in the main menu
-    Serial.println("Add select a menu option");
+    Serial.print("MenuOption: ");
+    Serial.println(menuOption);
+    //Serial.println("Add select a menu option");
     switch (menuOption) {
       case 'A':
+        Serial.println("Option A");
         access = 2;
         OurDisplay.clear();
-        menuOptA();
-        break;
+        //menuOptA();
+        result = 'A';
+        return(0);
       case 'B':
+        Serial.println("Option B");
         access = 2;
         OurDisplay.clear();
-        menuOptB();
-        break;
+        //menuOptA();
+        result = 'B';
+        return(0);
       case 'C':
+        Serial.println("Option C");
         access = 2;
         OurDisplay.clear();
-        //passwordChange();
-        break;
+        //menuOptA();
+        result = 'C';
+        return(0);
       case 'E':
         access = 0;
         pw1 = 0;
         pw2 = 0;
         length = 1;
         OurDisplay.clear();
+        Serial.println("System exited");
         Serial.println("Enter password to access the system:");
         break;
       default:
@@ -477,13 +491,14 @@ void record(){
         break;
     }
   }
-  */
-  /*
+  
+  
   if (access == 2 && digitalRead(SW2) == HIGH){  //while you are inside of a menu option
-    Serial.println("Add return to the menu state");
+    //Serial.println("Add return to the menu state");
     access = 1;
+    result = 'Y';
     delay(10);
     showMenu();
   }
-  */
+  
 }
