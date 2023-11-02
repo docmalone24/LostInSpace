@@ -151,11 +151,11 @@ void setup() {
   attachInterrupt(digitalPinToInterrupt(SW2), record, CHANGE);
 
   RGB_color(125, 125, 125);  //set LED to white on startup...
-  delay(2000);
+  delay(1000);
   RGB_color(0, 0, 0);  //... and off again
  
   Serial.begin(9600); // Begin monitoring via the serial monitor
-  delay(2000);
+  delay(1000);
   // Serial.println("Enter password to access the system:");
   // Serial.println("Press * to set a new password.");
   // Serial.println("Press # to access the system with the existing one.");
@@ -177,7 +177,6 @@ void passwordChange() {
     while(!(result = securityPad.getKey())) {
     // wait indefinitely for keypad input of any kind
     }
-
     currentPassword[i] = result;
     Serial.print("*");    // print a phantom character for a successful keystroke
     playInput();
@@ -185,21 +184,20 @@ void passwordChange() {
     delay(100);
     RGB_color(0, 0, 0);
   }   //  done after 4 characters are accepted
-
   Serial.println("");
   Serial.println("Password Successfully Changed!");
   RGB_color(0, 125, 0); // LED to GREEN
   delay(2000);
   RGB_color(0, 0, 0);
-
 }
-
+*/
+/*
 void menuOptA(){
   int sensorValue = 0;
   int buzzTone = 100;
   float senPercent = 0.0;
-  Serial.println("Press any key to return to menu.");
-  while(!(result = securityPad.getKey())) {
+  Serial.println("Press the button to return to menu.");
+  while(access == 2) {
     // run photo sound operation until a key is pressed
     sensorValue = analogRead(sensorPin);
     senPercent = (float)sensorValue / (float)senMax;
@@ -225,8 +223,8 @@ void menuOptB(){
   int redLevel;
   int greenLevel;
   int blueLevel;
-  Serial.println("Press any key to return to menu.");
-  while(!(result = securityPad.getKey())) {
+  Serial.println("Press button to return to menu.");
+  while(access == 2) {
     // run photo sound operation until a key is pressed
     sensorValue = analogRead(sensorPin);
     senPercent = (float)sensorValue / (float)senMax;
@@ -260,8 +258,8 @@ void menuOptB(){
   }
   RGB_color(0,0,0);
   return;
-} */
-
+} 
+*/
 void loop() {
  
  if (access <= 0){
@@ -402,6 +400,8 @@ void updateEncoder(){
 
 //function makes onboard LED flash when button is pushed
 void record(){
+  Serial.print("Access: ");
+  Serial.println(access);
   Serial.println(digitalRead(SW2));
 
   if (access <= 0)  {   //actions while validating password
@@ -416,6 +416,7 @@ void record(){
           Serial.println("Looks Good");
           access = 1;
           OurDisplay.clear();
+          exit(0);
         }
         else {
           Serial.println("Fuck off imposter!");
@@ -444,10 +445,45 @@ void record(){
       Serial.println(multiplier);
     }
   }
+  /*
   if (access == 1 && digitalRead(SW2) == HIGH){  //while in the main menu
     Serial.println("Add select a menu option");
+    switch (menuOption) {
+      case 'A':
+        access = 2;
+        OurDisplay.clear();
+        menuOptA();
+        break;
+      case 'B':
+        access = 2;
+        OurDisplay.clear();
+        menuOptB();
+        break;
+      case 'C':
+        access = 2;
+        OurDisplay.clear();
+        //passwordChange();
+        break;
+      case 'E':
+        access = 0;
+        pw1 = 0;
+        pw2 = 0;
+        length = 1;
+        OurDisplay.clear();
+        Serial.println("Enter password to access the system:");
+        break;
+      default:
+        Serial.println("Select a menu option");
+        break;
+    }
   }
+  */
+  /*
   if (access == 2 && digitalRead(SW2) == HIGH){  //while you are inside of a menu option
     Serial.println("Add return to the menu state");
+    access = 1;
+    delay(10);
+    showMenu();
   }
+  */
 }
