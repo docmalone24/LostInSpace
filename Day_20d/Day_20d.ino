@@ -206,7 +206,7 @@ void passwordChange() {
   }
   OurDisplay.clear();
   showMenu();
-  Serial.println("Change Password");
+  //Serial.println("Change Password");
   access = 1;
   result = 'X';
   return(0);
@@ -317,7 +317,7 @@ void loop() {
   if (access == 1){
     //Serial.println("You have entered the menu");
     showMenu();
-    Serial.println("In Loop, Access == 1");
+    //Serial.println("In Loop, Access == 1");
   }
 
   while (access == 1) {           // enter menu mode
@@ -438,17 +438,17 @@ void updateEncoder(){
 
 //function makes onboard LED flash when button is pushed
 void record(){
-  Serial.print("Access: ");
-  Serial.println(access);
-  if (access > 0){
-  Serial.print("MenuOption: ");
-  Serial.println(menuOption);
-  }
-  Serial.println(digitalRead(SW2));
+  // Serial.print("Access: ");
+  // Serial.println(access);
+  // if (access > 0){
+  // Serial.print("MenuOption: ");
+  // Serial.println(menuOption);
+  // }
+  //Serial.println(digitalRead(SW2));
 
   if (access <= 0)  {   //actions while validating password
     if (digitalRead(SW2) == HIGH){
-      Serial.println("in loop");
+      //Serial.println("in loop");
       pw2 = pw1;
       //multiplier = multiplier * 10;
       if (length == 4){ //entering of password complete, validate if correct
@@ -460,13 +460,18 @@ void record(){
           OurDisplay.clear();
           if (result == 'X'){
             showMenu();
-            Serial.println("In record, password verified, result == X");
+            //Serial.println("In record, password verified, result == X");
           }
           return(0);
         }
         else {
-          Serial.println("Fuck off imposter!");
-          Serial.println("Enter the correct password to access the system:");
+          if (result =='C'){
+            Serial.println("Nope");
+          }
+          else {
+            Serial.println("Fuck off imposter!");
+            Serial.println("Enter the correct password to access the system:");
+          }
           pw1 = 0;
           pw2 = 0;
           length = 1;
@@ -480,22 +485,22 @@ void record(){
       pw1 = pw1 * multiplier;
       }
     //debuging readout 
-      Serial.print("pw1: ");
-      Serial.print(pw1);
-      Serial.print("  pw2: ");
-      Serial.print(pw2);
-      Serial.print("  length: ");
-      Serial.print(length);
-      Serial.print("  password: ");
-      Serial.print(password);
-      Serial.print("  multiplier: ");
-      Serial.println(multiplier);
+      // Serial.print("pw1: ");
+      // Serial.print(pw1);
+      // Serial.print("  pw2: ");
+      // Serial.print(pw2);
+      // Serial.print("  length: ");
+      // Serial.print(length);
+      // Serial.print("  password: ");
+      // Serial.print(password);
+      // Serial.print("  multiplier: ");
+      // Serial.println(multiplier);
     }
   }
   
   if (access == 1 && digitalRead(SW2) == HIGH){  //while in the main menu
-    Serial.print("MenuOption: ");
-    Serial.println(menuOption);
+    // Serial.print("MenuOption: ");
+    // Serial.println(menuOption);
     //Serial.println("Add select a menu option");
     switch (menuOption) {
       case 'A':
@@ -540,7 +545,7 @@ void record(){
     result = 'Y';
     delay(10);
     showMenu();
-    Serial.println("exit menu A or B, Access was 2, now == 1");
+    //Serial.println("exit menu A or B, Access was 2, now == 1");
   }
   if (access == 3 && digitalRead(SW2) == HIGH){  //switch operation while resetting password
     length ++;
