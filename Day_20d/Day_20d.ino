@@ -116,8 +116,7 @@ void playInput() {
 }
  
 //  custom function to light the LED *******************************
-void RGB_color(int red_value, int green_value, int blue_value)
-{
+void RGB_color(int red_value, int green_value, int blue_value){
   analogWrite(redPin, red_value);
   analogWrite(greenPin, green_value);
   analogWrite(bluePin, blue_value);
@@ -172,26 +171,62 @@ void showMenu(){
   Serial.println("C: Change Password");
   Serial.println("E: Exit");
 }
-/*
+
 void passwordChange() {
-    for(int i = 0; i < PassLength; i++) {
-    while(!(result = securityPad.getKey())) {
-    // wait indefinitely for keypad input of any kind
+  access = 0;
+  pw1 = 0;
+  pw2 = 0;
+  length = 1;
+  while (result == 'C'){
+    OurDisplay.showNumberDec(pw1,true,length,0);
+    delay(10);
+
+    if (access == 1){
+      //password entered correctly, start new loop
+      access = 3;
+      Serial.println("Enter new password:");
+      OurDisplay.clear();
+      result = 'N';
+      pw1 = 0;
+      pw2 = 0;
+      length = 1;
     }
-    currentPassword[i] = result;
-    Serial.print("*");    // print a phantom character for a successful keystroke
-    playInput();
-    RGB_color(0, 0, 125); // flash LED blue
-    delay(100);
-    RGB_color(0, 0, 0);
-  }   //  done after 4 characters are accepted
-  Serial.println("");
-  Serial.println("Password Successfully Changed!");
-  RGB_color(0, 125, 0); // LED to GREEN
-  delay(2000);
-  RGB_color(0, 0, 0);
+  }
+  while (result == 'N'){
+    //here enter code to write a new password
+    //might need more interupt code 
+    OurDisplay.showNumberDec(pw1,true,length,0);
+    delay(10);
+    if (length > 4){
+      password = pw1;
+      Serial.print("Password reset: ");
+      Serial.println(password);
+      result = 'C';
+    }
+  }
+  OurDisplay.clear();
+  showMenu();
+  Serial.println("Change Password");
+  access = 1;
+  result = 'X';
+  return(0);
+  //   for(int i = 0; i < PassLength; i++) {
+  //   while(!(result = securityPad.getKey())) {
+  //   // wait indefinitely for keypad input of any kind
+  //   }
+  //   currentPassword[i] = result;
+  //   Serial.print("*");    // print a phantom character for a successful keystroke
+  //   playInput();
+  //   RGB_color(0, 0, 125); // flash LED blue
+  //   delay(100);
+  //   RGB_color(0, 0, 0);
+  // }   //  done after 4 characters are accepted
+  // Serial.println("");
+  // Serial.println("Password Successfully Changed!");
+  // RGB_color(0, 125, 0); // LED to GREEN
+  // delay(2000);
+  // RGB_color(0, 0, 0);
 }
-*/
 
 void menuOptA(){
   int sensorValue = 0;
@@ -279,12 +314,13 @@ void loop() {
     // Serial.print("  access: ");
     // Serial.println(access);
 
-  if (access > 0){
+  if (access == 1){
     //Serial.println("You have entered the menu");
     showMenu();
+    Serial.println("In Loop, Access == 1");
   }
 
-  while (access > 0) {           // enter menu mode
+  while (access == 1) {           // enter menu mode
     //result = securityPad.getKey(); 
     //Serial.println("In the menu loop"); 
     delay(1);
@@ -304,8 +340,9 @@ void loop() {
       //showMenu();
     }
     if (result == 'C'){
-      Serial.println("Enter the new password:");
-      //passwordChange();
+      //access = 3;
+      Serial.println("Enter current password:");
+      passwordChange();
       //showMenu();
     }
     // if (result == 'E'){
@@ -320,7 +357,7 @@ void updateEncoder(){
   // Read the current state of CLK
   currentStateCLK = digitalRead(CLK2);
 
-  if (access <= 0) {  //actions while validating password
+  if (access == 0 || access == 3) {  //actions while validating password
     // If last and current state of CLK are different, then a pulse occurred;
     // React to only 0->1 state change to avoid double counting
     if (currentStateCLK != lastStateCLK  && currentStateCLK == 1){
@@ -346,7 +383,7 @@ void updateEncoder(){
     // Remember last CLK state to use on next interrupt...
     lastStateCLK = currentStateCLK;
   }
-  if (access > 0) {   //actions after password has been validated and system access has been granted
+  if (access == 1) {   //actions after password has been validated and system access has been granted
     //Serial.println("Here you need to code to scroll through the menu options");
     if (currentStateCLK != lastStateCLK  && currentStateCLK == 1){
       if (digitalRead(DT2) == currentStateCLK) {
@@ -421,6 +458,10 @@ void record(){
           Serial.println("Looks Good");
           access = 1;
           OurDisplay.clear();
+          if (result == 'X'){
+            showMenu();
+            Serial.println("In record, password verified, result == X");
+          }
           return(0);
         }
         else {
@@ -429,8 +470,9 @@ void record(){
           pw1 = 0;
           pw2 = 0;
           length = 1;
+          result = 'X';
           OurDisplay.clear();
-          return;
+          return(0);
         }
       }
       if (length < 4) { //while validating password
@@ -482,6 +524,7 @@ void record(){
         pw1 = 0;
         pw2 = 0;
         length = 1;
+        result = 'X';
         OurDisplay.clear();
         Serial.println("System exited");
         Serial.println("Enter password to access the system:");
@@ -491,14 +534,19 @@ void record(){
         break;
     }
   }
-  
-  
   if (access == 2 && digitalRead(SW2) == HIGH){  //while you are inside of a menu option
     //Serial.println("Add return to the menu state");
     access = 1;
     result = 'Y';
     delay(10);
     showMenu();
+    Serial.println("exit menu A or B, Access was 2, now == 1");
   }
-  
+  if (access == 3 && digitalRead(SW2) == HIGH){  //switch operation while resetting password
+    length ++;
+    if (length < 5){
+    pw2 = pw1;
+    pw1 = pw1 * multiplier;
+    }
+  }  
 }
