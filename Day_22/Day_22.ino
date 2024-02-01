@@ -44,6 +44,7 @@ void loop(void) {
  
 void draw(void) {
   u8g_prepare();
+  delay(100);
   switch(draw_state >> 3) {
     case 0: u8g_box_frame(draw_state&7); break;
     case 1: u8g_disc_circle(draw_state&7); break;
@@ -75,11 +76,11 @@ void u8g_box_frame(uint8_t a) {
  
 void u8g_disc_circle(uint8_t a) {
   My_u8g_Panel.drawStr( 0, 0, "drawDisc");
-  My_u8g_Panel.drawDisc(10,18,9);
-  My_u8g_Panel.drawDisc(24+a,16,7);
+  My_u8g_Panel.drawDisc(10,18,9,U8G_DRAW_UPPER_LEFT);
+  My_u8g_Panel.drawDisc(24+a,16,7,U8G_DRAW_LOWER_RIGHT);
   My_u8g_Panel.drawStr( 0, 30, "drawCircle");
-  My_u8g_Panel.drawCircle(10,18+30,9);
-  My_u8g_Panel.drawCircle(24+a,16+30,7);
+  My_u8g_Panel.drawCircle(10,18+30,9,U8G_DRAW_UPPER_RIGHT);
+  My_u8g_Panel.drawCircle(24+a,16+30,7,U8G_DRAW_LOWER_LEFT);
 }
  
 void u8g_r_frame(uint8_t a) {
