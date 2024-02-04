@@ -44,7 +44,7 @@ void loop(void) {
  
 void draw(void) {
   u8g_prepare();
-  delay(100);
+  //delay(100);
   switch(draw_state >> 3) {
     case 0: u8g_box_frame(draw_state&7); break;
     case 1: u8g_disc_circle(draw_state&7); break;
